@@ -9,4 +9,4 @@
 
 #define NP_NODISCARD [[nodiscard]]
 
-#endif	  //NP_COMMON_HPP
+#endif
