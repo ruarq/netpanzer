@@ -25,6 +25,5 @@
 int main()
 {
 	std::cout << "np_server\n";
-	NetPanzer::Core();
 	return 0;
 }
