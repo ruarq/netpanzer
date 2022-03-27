@@ -1,0 +1,12 @@
+# MacOSX
+.DS_Store
+
+# CMake
+cmake-build-debug
+cmake-build-release
+
+# CLion
+.idea
+
+# Visual Studio Code
+.vscode
