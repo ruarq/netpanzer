@@ -18,46 +18,81 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include <iostream>
+#include "Buffer.hpp"
 
-#include <Net/TcpSocket.hpp>
-#include <Net/UdpSocket.hpp>
-#include <common.hpp>
-
-using namespace NetPanzer;
-
-int main()
+namespace NetPanzer
 {
-	const std::string_view httpRequest = "GET / HTTP/1.1\r\n"
-										 "Host: www.example.com\r\n"
-										 "Connection: close\r\n\r\n";
 
-	Net::TcpSocket socket;
-	const bool open = socket.Connect("www.example.com", 80);
-	if (!open)
+Buffer::Buffer(const size_t size)
+	: data{ new Byte[size] }
+	, size{ size }
+{
+}
+
+Buffer::Buffer(const Byte *data, const size_t size)
+{
+	this->data = new Byte[size];
+	std::memcpy(this->data, data, size);
+	this->size = size;
+}
+
+Buffer::~Buffer()
+{
+	delete[] data;
+}
+
+Buffer::Buffer(Buffer &&buffer) noexcept
+{
+	operator=(std::move(buffer));
+}
+
+void Buffer::Resize(const size_t newSize)
+{
+	if (newSize > size)
 	{
-		std::cout << "Couldn't open a connection!\n";
-		std::cout << strerror(errno) << "\n";
-		return 1;
+		// allocate a bigger buffer
+		auto buffer = new Byte[newSize];
+
+		// copy the data and delete the old buffer
+		std::memcpy(buffer, data, size);
+		delete[] data;
+
+		// set new buffer
+		data = buffer;
 	}
 
-	ssize_t bytesSent{};
-	do
-	{
-		bytesSent += socket.Send(BufferView{ (Byte *)httpRequest.data(), httpRequest.size() });
-	}
-	while (bytesSent < httpRequest.size());
+	size = newSize;
+}
 
-	std::string response;
-	Buffer part{ NP_NET_DEFAULT_BUFFER_SIZE };
-	do
-	{
-		part = std::move(socket.Receive(NP_NET_DEFAULT_BUFFER_SIZE));
-		response += std::string{ part.Data(), part.Data() + part.Size() };
-	}
-	while (!part.Empty());
+Byte *Buffer::Data()
+{
+	return data;
+}
 
-	std::cout << response << "\n";
+size_t Buffer::Size() const
+{
+	return size;
+}
 
-	return 0;
+bool Buffer::Empty() const
+{
+	return Size() == 0;
+}
+
+BufferView::BufferView(const Byte *data, const size_t size)
+	: data{ data }
+	, size{ size }
+{
+}
+
+const Byte *BufferView::Data() const
+{
+	return data;
+}
+
+size_t BufferView::Size() const
+{
+	return size;
+}
+
 }

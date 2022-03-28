@@ -18,46 +18,51 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include <iostream>
+#include "TcpSocket.hpp"
 
-#include <Net/TcpSocket.hpp>
-#include <Net/UdpSocket.hpp>
-#include <common.hpp>
-
-using namespace NetPanzer;
-
-int main()
+namespace NetPanzer::Net
 {
-	const std::string_view httpRequest = "GET / HTTP/1.1\r\n"
-										 "Host: www.example.com\r\n"
-										 "Connection: close\r\n\r\n";
 
-	Net::TcpSocket socket;
-	const bool open = socket.Connect("www.example.com", 80);
-	if (!open)
+TcpSocket::TcpSocket()
+	: Socket{ Protocol::Tcp }
+{
+}
+
+bool TcpSocket::Connect(const std::string &hostname, Port port, ProtocolFamily family)
+{
+	if (socketFd != NP_SOCKET_INVALID)
 	{
-		std::cout << "Couldn't open a connection!\n";
-		std::cout << strerror(errno) << "\n";
-		return 1;
+		Disconnect();
 	}
 
-	ssize_t bytesSent{};
-	do
+	const auto address = GetAddressInfo(hostname, port, family);
+	if (!address)
 	{
-		bytesSent += socket.Send(BufferView{ (Byte *)httpRequest.data(), httpRequest.size() });
+		return false;
 	}
-	while (bytesSent < httpRequest.size());
 
-	std::string response;
-	Buffer part{ NP_NET_DEFAULT_BUFFER_SIZE };
-	do
-	{
-		part = std::move(socket.Receive(NP_NET_DEFAULT_BUFFER_SIZE));
-		response += std::string{ part.Data(), part.Data() + part.Size() };
-	}
-	while (!part.Empty());
+	socketFd = socket(address->ai_family, SOCK_STREAM, (int)protocol);
+	return connect(socketFd, address->ai_addr, address->ai_addrlen) == 0;
+}
 
-	std::cout << response << "\n";
+void TcpSocket::Disconnect()
+{
+	close(socketFd);
+	socketFd = NP_SOCKET_INVALID;
+}
 
-	return 0;
+ssize_t TcpSocket::Send(const BufferView &buffer)
+{
+	return send(socketFd, buffer.Data(), buffer.Size(), 0);
+}
+
+Buffer TcpSocket::Receive(const size_t maxBufferSize)
+{
+	Buffer buffer{ maxBufferSize };
+	const ssize_t bytesReceived = recv(socketFd, buffer.Data(), buffer.Size(), 0);
+
+	buffer.Resize(bytesReceived);
+	return buffer;
+}
+
 }

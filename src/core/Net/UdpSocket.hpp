@@ -18,46 +18,52 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include <iostream>
+#ifndef NP_UDPSOCKET_HPP
+#define NP_UDPSOCKET_HPP
 
-#include <Net/TcpSocket.hpp>
-#include <Net/UdpSocket.hpp>
-#include <common.hpp>
+#include "../Buffer.hpp"
+#include "Socket.hpp"
 
-using namespace NetPanzer;
-
-int main()
+namespace NetPanzer::Net
 {
-	const std::string_view httpRequest = "GET / HTTP/1.1\r\n"
-										 "Host: www.example.com\r\n"
-										 "Connection: close\r\n\r\n";
 
-	Net::TcpSocket socket;
-	const bool open = socket.Connect("www.example.com", 80);
-	if (!open)
-	{
-		std::cout << "Couldn't open a connection!\n";
-		std::cout << strerror(errno) << "\n";
-		return 1;
-	}
+class UdpSocket : Socket
+{
+public:
+	/**
+	 * @brief Initialize a UDP socket. NOTE: If you're initializing with Net::ProtocolFamily::Any,
+	 * the protocol family will be decided on first call to
+	 * UdpSocket::SentTo or UdpSocket::ReceiveFrom automatically and can't and won't be
+	 * changed afterwards.
+	 * @param family
+	 */
+	explicit UdpSocket(ProtocolFamily family);
 
-	ssize_t bytesSent{};
-	do
-	{
-		bytesSent += socket.Send(BufferView{ (Byte *)httpRequest.data(), httpRequest.size() });
-	}
-	while (bytesSent < httpRequest.size());
+public:
+	/**
+	 * @brief Send some data to a host
+	 * @param hostname The hostname
+	 * @param port The port
+	 * @param buffer The data
+	 * @return The amount of bytes sent
+	 */
+	NP_NODISCARD ssize_t SendTo(const std::string &hostname, Port port, const BufferView &buffer);
 
-	std::string response;
-	Buffer part{ NP_NET_DEFAULT_BUFFER_SIZE };
-	do
-	{
-		part = std::move(socket.Receive(NP_NET_DEFAULT_BUFFER_SIZE));
-		response += std::string{ part.Data(), part.Data() + part.Size() };
-	}
-	while (!part.Empty());
+	/**
+	 * @brief Receive some data from a host
+	 * @param hostname The hostname
+	 * @param port The port
+	 * @param maxBufferSize The max buffer size
+	 * @return Buffer containing the data received
+	 */
+	NP_NODISCARD Buffer ReceiveFrom(const std::string &hostname,
+		Port port,
+		size_t maxBufferSize = NP_NET_DEFAULT_BUFFER_SIZE);
 
-	std::cout << response << "\n";
+private:
+	ProtocolFamily family;
+};
 
-	return 0;
 }
+
+#endif

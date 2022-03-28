@@ -18,46 +18,47 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include <iostream>
+#include "Socket.hpp"
 
-#include <Net/TcpSocket.hpp>
-#include <Net/UdpSocket.hpp>
-#include <common.hpp>
-
-using namespace NetPanzer;
-
-int main()
+namespace NetPanzer::Net
 {
-	const std::string_view httpRequest = "GET / HTTP/1.1\r\n"
-										 "Host: www.example.com\r\n"
-										 "Connection: close\r\n\r\n";
 
-	Net::TcpSocket socket;
-	const bool open = socket.Connect("www.example.com", 80);
-	if (!open)
+Socket::Socket(const Protocol protocol)
+	: socketFd{ NP_SOCKET_INVALID }
+	, protocol{ protocol }
+{
+}
+
+Socket::~Socket()
+{
+	close(socketFd);
+}
+
+UniqueAddrinfoPtr Socket::GetAddressInfo(const std::string &hostname,
+	const Port port,
+	const ProtocolFamily family) const
+{
+	addrinfo hints{};
+	hints.ai_family = (int)family;
+	hints.ai_protocol = (int)protocol;
+
+	// NOTE: At his point we expect protocol to be either Tcp or Udp, and nothing else
+	// that's why this should work (should)
+	hints.ai_socktype = (protocol == Protocol::Tcp ? SOCK_STREAM : SOCK_DGRAM);
+
+	// We have to convert port to a string since getaddrinfo only accepts strings :/
+	const std::string portAsStr = std::to_string(port);
+
+	addrinfo *address{};
+	const int result = getaddrinfo(hostname.c_str(), portAsStr.c_str(), &hints, &address);
+	if (result != 0)
 	{
-		std::cout << "Couldn't open a connection!\n";
-		std::cout << strerror(errno) << "\n";
-		return 1;
+		// TODO(ruarq): If getaddrinfo, could address still contain some data?
+		return MakeUniqueAddrinfoPtr(nullptr);
 	}
 
-	ssize_t bytesSent{};
-	do
-	{
-		bytesSent += socket.Send(BufferView{ (Byte *)httpRequest.data(), httpRequest.size() });
-	}
-	while (bytesSent < httpRequest.size());
+	// By using a unique_ptr we don't have to remember to delete the result return by this function
+	return MakeUniqueAddrinfoPtr(address);
+}
 
-	std::string response;
-	Buffer part{ NP_NET_DEFAULT_BUFFER_SIZE };
-	do
-	{
-		part = std::move(socket.Receive(NP_NET_DEFAULT_BUFFER_SIZE));
-		response += std::string{ part.Data(), part.Data() + part.Size() };
-	}
-	while (!part.Empty());
-
-	std::cout << response << "\n";
-
-	return 0;
 }

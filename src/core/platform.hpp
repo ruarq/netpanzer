@@ -18,46 +18,17 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include <iostream>
+#ifndef NP_PLATFORM_HPP
+#define NP_PLATFORM_HPP
 
-#include <Net/TcpSocket.hpp>
-#include <Net/UdpSocket.hpp>
-#include <common.hpp>
+#if defined(__APPLE__)
+	#define NP_OS_MACOSX
+#elif defined(__linux__)
+	#define NP_OS_LINUX
+#elif defined(_WIN32)
+	#define NP_OS_WINDOWS
+#else
+	#error "Your platform is not supported."
+#endif
 
-using namespace NetPanzer;
-
-int main()
-{
-	const std::string_view httpRequest = "GET / HTTP/1.1\r\n"
-										 "Host: www.example.com\r\n"
-										 "Connection: close\r\n\r\n";
-
-	Net::TcpSocket socket;
-	const bool open = socket.Connect("www.example.com", 80);
-	if (!open)
-	{
-		std::cout << "Couldn't open a connection!\n";
-		std::cout << strerror(errno) << "\n";
-		return 1;
-	}
-
-	ssize_t bytesSent{};
-	do
-	{
-		bytesSent += socket.Send(BufferView{ (Byte *)httpRequest.data(), httpRequest.size() });
-	}
-	while (bytesSent < httpRequest.size());
-
-	std::string response;
-	Buffer part{ NP_NET_DEFAULT_BUFFER_SIZE };
-	do
-	{
-		part = std::move(socket.Receive(NP_NET_DEFAULT_BUFFER_SIZE));
-		response += std::string{ part.Data(), part.Data() + part.Size() };
-	}
-	while (!part.Empty());
-
-	std::cout << response << "\n";
-
-	return 0;
-}
+#endif	  //NP_PLATFORM_HPP

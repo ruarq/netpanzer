@@ -18,46 +18,53 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include <iostream>
+#ifndef NP_TCPSOCKET_HPP
+#define NP_TCPSOCKET_HPP
 
-#include <Net/TcpSocket.hpp>
-#include <Net/UdpSocket.hpp>
-#include <common.hpp>
+#include "../Buffer.hpp"
+#include "Socket.hpp"
 
-using namespace NetPanzer;
-
-int main()
+namespace NetPanzer::Net
 {
-	const std::string_view httpRequest = "GET / HTTP/1.1\r\n"
-										 "Host: www.example.com\r\n"
-										 "Connection: close\r\n\r\n";
 
-	Net::TcpSocket socket;
-	const bool open = socket.Connect("www.example.com", 80);
-	if (!open)
-	{
-		std::cout << "Couldn't open a connection!\n";
-		std::cout << strerror(errno) << "\n";
-		return 1;
-	}
+class TcpSocket : Socket
+{
+public:
+	/**
+	 * @brief Initialize a TCP socket
+	 */
+	TcpSocket();
 
-	ssize_t bytesSent{};
-	do
-	{
-		bytesSent += socket.Send(BufferView{ (Byte *)httpRequest.data(), httpRequest.size() });
-	}
-	while (bytesSent < httpRequest.size());
+public:
+	/**
+	 * @brief Connect a connection to a host
+	 * @param hostname The hostname
+	 * @param port The port
+	 * @return True if opening the connection was successful, otherwise false
+	 */
+	NP_NODISCARD bool
+	Connect(const std::string &hostname, Port port, ProtocolFamily family = ProtocolFamily::Any);
 
-	std::string response;
-	Buffer part{ NP_NET_DEFAULT_BUFFER_SIZE };
-	do
-	{
-		part = std::move(socket.Receive(NP_NET_DEFAULT_BUFFER_SIZE));
-		response += std::string{ part.Data(), part.Data() + part.Size() };
-	}
-	while (!part.Empty());
+	/**
+	 * @brief Disconnect the socket
+	 */
+	 void Disconnect();
 
-	std::cout << response << "\n";
+	/**
+	 * @brief Send data
+	 * @param buffer The buffer to send
+	 * @return The amount of bytes sent
+	 */
+	NP_NODISCARD ssize_t Send(const BufferView &buffer);
 
-	return 0;
+	/**
+	 * @brief Receive data
+	 * @param maxBufferSize The max buffer size
+	 * @return Buffer containing the data received
+	 */
+	NP_NODISCARD Buffer Receive(size_t maxBufferSize = NP_NET_DEFAULT_BUFFER_SIZE);
+};
+
 }
+
+#endif
