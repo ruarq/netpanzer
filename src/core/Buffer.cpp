@@ -79,6 +79,11 @@ bool Buffer::Empty() const
 	return Size() == 0;
 }
 
+Byte &Buffer::operator[](const size_t index)
+{
+	return data[index];
+}
+
 BufferView::BufferView(const Byte *data, const size_t size)
 	: data{ data }
 	, size{ size }

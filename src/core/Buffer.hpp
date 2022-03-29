@@ -79,6 +79,13 @@ public:
 	NP_NODISCARD bool Empty() const;
 
 	/**
+	 * @brief Get the byte at n-th position in the buffer
+	 * @param index The n-th position
+	 * @return The byte at the n-th position
+	 */
+	NP_NODISCARD Byte &operator[](size_t index);
+
+	/**
 	 * @brief Move the buffer
 	 */
 	inline Buffer &operator=(Buffer &&buffer) noexcept
