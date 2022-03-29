@@ -47,8 +47,7 @@ bool TcpSocket::Connect(const std::string &hostname, Port port, ProtocolFamily f
 
 void TcpSocket::Disconnect()
 {
-	close(socketFd);
-	socketFd = NP_SOCKET_INVALID;
+	Close();
 }
 
 ssize_t TcpSocket::Send(const BufferView &buffer)
@@ -98,7 +97,7 @@ Buffer TcpSocket::ReceiveAll(size_t packetSize)
 
 	Buffer buffer{ 0 };
 	Buffer received{ Receive(packetSize) };
-	
+
 	while (!received.Empty())
 	{
 		// Cache buffer.Size() because buffer.Resize() changes it

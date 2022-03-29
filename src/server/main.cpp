@@ -20,10 +20,13 @@
 
 #include <iostream>
 
-#include <common.hpp>
+#include <Net/TcpSocket.hpp>
+
+using namespace NetPanzer;
 
 int main()
 {
-	std::cout << "np_server\n";
+	Net::TcpSocket socket;
+
 	return 0;
 }

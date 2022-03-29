@@ -44,7 +44,7 @@ public:
 	 */
 	NP_NODISCARD bool
 	Connect(const std::string &hostname, Port port, ProtocolFamily family = ProtocolFamily::Any);
-
+	
 	/**
 	 * @brief Disconnect the socket
 	 */
