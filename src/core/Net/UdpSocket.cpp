@@ -37,7 +37,7 @@ UdpSocket::UdpSocket(const ProtocolFamily family)
 			socketFd = socket((int)family, SOCK_DGRAM, (int)protocol);
 			break;
 
-		default:
+		case ProtocolFamily::Any:
 			break;
 	}
 }
@@ -50,7 +50,7 @@ ssize_t UdpSocket::SendTo(const std::string &hostname, const Port port, const Bu
 		return -1;
 	}
 
-	// This happen when the udp socket was constructed with ProtocolFamily::Any,
+	// This happens when the udp socket was constructed with ProtocolFamily::Any,
 	// since we can't construct a socket when we don't know its family
 	if (socketFd == NP_SOCKET_INVALID)
 	{
