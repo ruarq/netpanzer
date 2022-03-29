@@ -55,6 +55,26 @@ public:
 
 public:
 	/**
+	 * @brief Pointer to the beginning of the buffer
+	 */
+	NP_NODISCARD Byte *begin();
+
+	/**
+	 * @brief Pointer to the beginning of the buffer
+	 */
+	NP_NODISCARD const Byte *begin() const;
+
+	/**
+	 * @brief Pointer to the end of the buffer
+	 */
+	NP_NODISCARD Byte *end();
+
+	/**
+	  * @brief Pointer to the end of the buffer
+	  */
+	NP_NODISCARD const Byte *end() const;
+
+	/**
 	 * @brief Resize the buffer
 	 * @param newSize The new size of the buffer
 	 */
@@ -65,6 +85,11 @@ public:
 	 * @return Byte* to the data
 	 */
 	NP_NODISCARD Byte *Data();
+
+	/**
+	 * @brief Get the stored data
+	 * @return const Byte* to the data
+	 */
 	NP_NODISCARD const Byte *Data() const;
 
 	/**
@@ -115,6 +140,14 @@ public:
 	 * @param size The size of the data in bytes
 	 */
 	BufferView(const Byte *data, size_t size);
+
+	/**
+	 * @brief Construct a buffer view. The data the view points to has to be alive
+	 * as long as the buffer view is alive
+	 * @param first Pointer to the first byte of the buffer
+	 * @param last Pointer to the last byte of the buffer
+	 */
+	BufferView(const Byte *first, const Byte *last);
 
 public:
 	/**

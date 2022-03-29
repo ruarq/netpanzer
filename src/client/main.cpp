@@ -40,8 +40,7 @@ int main()
 		return 1;
 	}
 
-	const ssize_t bytesSent =
-		socket.SendAll(BufferView{ (Byte *)httpRequest.data(), httpRequest.size() });
+	const ssize_t bytesSent = socket.SendAll(BufferView{ httpRequest.begin(), httpRequest.end() });
 	if (bytesSent != httpRequest.size())
 	{
 		std::cout << "Couldn't send http request!\n";
@@ -49,7 +48,7 @@ int main()
 	}
 
 	const Buffer response{ socket.ReceiveAll() };
-	std::string responseAsString{ response.Data(), response.Data() + response.Size() };
+	std::string responseAsString{ response.begin(), response.end() };
 	std::cout << responseAsString << "\n";
 
 	return 0;

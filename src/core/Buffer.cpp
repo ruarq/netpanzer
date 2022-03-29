@@ -46,6 +46,26 @@ Buffer::Buffer(Buffer &&buffer) noexcept
 	operator=(std::move(buffer));
 }
 
+Byte *Buffer::begin()
+{
+	return data;
+}
+
+const Byte *Buffer::begin() const
+{
+	return data;
+}
+
+Byte *Buffer::end()
+{
+	return data + size;
+}
+
+const Byte *Buffer::end() const
+{
+	return data + size;
+}
+
 void Buffer::Resize(const size_t newSize)
 {
 	if (newSize > size)
@@ -92,6 +112,11 @@ Byte &Buffer::operator[](const size_t index)
 BufferView::BufferView(const Byte *data, const size_t size)
 	: data{ data }
 	, size{ size }
+{
+}
+
+BufferView::BufferView(const Byte *first, const Byte *last)
+	: BufferView{ first, (size_t)(last - first) }
 {
 }
 
