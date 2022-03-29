@@ -36,11 +36,6 @@ TcpSocket::TcpSocket(const SocketFd socket)
 
 bool TcpSocket::Connect(const std::string &hostname, Port port, ProtocolFamily family)
 {
-	if (socketFd != NP_SOCKET_INVALID)
-	{
-		Disconnect();
-	}
-
 	const auto address = GetAddressInfo(hostname, port, family);
 	if (!address)
 	{
