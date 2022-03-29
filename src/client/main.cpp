@@ -48,11 +48,9 @@ int main()
 		return 1;
 	}
 
-	std::string response;
-	Buffer buffer{ socket.ReceiveAll() };
-
-	response = std::string{ buffer.Data(), buffer.Data() + buffer.Size() };
-	std::cout << response << "\n";
+	const Buffer response{ socket.ReceiveAll() };
+	std::string responseAsString{ response.Data(), response.Data() + response.Size() };
+	std::cout << responseAsString << "\n";
 
 	return 0;
 }

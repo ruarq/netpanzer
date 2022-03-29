@@ -69,6 +69,11 @@ Byte *Buffer::Data()
 	return data;
 }
 
+const Byte *Buffer::Data() const
+{
+	return data;
+}
+
 size_t Buffer::Size() const
 {
 	return size;

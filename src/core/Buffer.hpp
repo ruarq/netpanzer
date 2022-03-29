@@ -65,6 +65,7 @@ public:
 	 * @return Byte* to the data
 	 */
 	NP_NODISCARD Byte *Data();
+	NP_NODISCARD const Byte *Data() const;
 
 	/**
 	 * @brief Get the size of the stored data
