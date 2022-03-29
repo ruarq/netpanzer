@@ -96,10 +96,17 @@ protected:
 	explicit Socket(Protocol protocol);
 	virtual ~Socket();
 
+public:
+	/**
+	 * @brief Get the native handle of the socket
+	 * @return The native socket handle
+	 */
+	NP_NODISCARD SocketFd NativeHandle() const;
+	
 protected:
 	/**
-	 * @brief Get address information using the hostname, port and procotol family
-	 * @param hostname The hostname
+	 * @brief Get address information using the hostname, port and procotol family.
+	 * @param hostname The hostname. Leave empty to get information about this host
 	 * @param port The port
 	 * @param family The protocol family
 	 * @return Pointer to addrinfo* containing the address information. Returns nullptr if something went wrong.
@@ -107,6 +114,11 @@ protected:
 	NP_NODISCARD UniqueAddrinfoPtr GetAddressInfo(const std::string &hostname,
 		Port port,
 		ProtocolFamily family) const;
+
+	/**
+	 * @brief Close the socket
+	 */
+	void Close();
 
 protected:
 	SocketFd socketFd;

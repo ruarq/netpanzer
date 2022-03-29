@@ -23,6 +23,11 @@
 namespace NetPanzer::Net
 {
 
+constexpr int ProtocolToSocketType(const Protocol protocol)
+{
+	return protocol == Protocol::Tcp ? SOCK_STREAM : SOCK_DGRAM;
+}
+
 Socket::Socket(const Protocol protocol)
 	: socketFd{ NP_SOCKET_INVALID }
 	, protocol{ protocol }
@@ -31,7 +36,12 @@ Socket::Socket(const Protocol protocol)
 
 Socket::~Socket()
 {
-	close(socketFd);
+	Close();
+}
+
+SocketFd Socket::NativeHandle() const
+{
+	return socketFd;
 }
 
 UniqueAddrinfoPtr Socket::GetAddressInfo(const std::string &hostname,
@@ -44,13 +54,16 @@ UniqueAddrinfoPtr Socket::GetAddressInfo(const std::string &hostname,
 
 	// NOTE: At his point we expect protocol to be either Tcp or Udp, and nothing else
 	// that's why this should work (should)
-	hints.ai_socktype = (protocol == Protocol::Tcp ? SOCK_STREAM : SOCK_DGRAM);
+	hints.ai_socktype = ProtocolToSocketType(protocol);
 
 	// We have to convert port to a string since getaddrinfo only accepts strings :/
 	const std::string portAsStr = std::to_string(port);
 
 	addrinfo *address{};
-	const int result = getaddrinfo(hostname.c_str(), portAsStr.c_str(), &hints, &address);
+	const int result = getaddrinfo(hostname.empty() ? nullptr : hostname.c_str(),
+		portAsStr.c_str(),
+		&hints,
+		&address);
 	if (result != 0)
 	{
 		// TODO(ruarq): If getaddrinfo, could address still contain some data?
@@ -59,6 +72,12 @@ UniqueAddrinfoPtr Socket::GetAddressInfo(const std::string &hostname,
 
 	// By using a unique_ptr we don't have to remember to delete the result return by this function
 	return MakeUniqueAddrinfoPtr(address);
+}
+
+void Socket::Close()
+{
+	close(socketFd);
+	socketFd = NP_SOCKET_INVALID;
 }
 
 }
