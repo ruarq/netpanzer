@@ -134,6 +134,12 @@ class BufferView
 {
 public:
 	/**
+	 * @brief Construct a buffer view using a Buffer object
+	 * @param buffer The buffer object
+	 */
+	explicit BufferView(const Buffer &buffer);
+
+	/**
 	 * @brief Construct a buffer view. The data the view points to has to be alive
 	 * as long as the buffer view is alive
 	 * @param data Pointer to the data (will NOT be copied!)
@@ -150,6 +156,16 @@ public:
 	BufferView(const Byte *first, const Byte *last);
 
 public:
+	/**
+	 * @brief Pointer to the beginning of the buffer
+	 */
+	NP_NODISCARD const Byte *begin() const;
+
+	/**
+	  * @brief Pointer to the end of the buffer
+	  */
+	NP_NODISCARD const Byte *end() const;
+
 	/**
 	 * @brief Get the data the view points to
 	 * @return const Byte* to the data

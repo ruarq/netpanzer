@@ -109,6 +109,11 @@ Byte &Buffer::operator[](const size_t index)
 	return data[index];
 }
 
+BufferView::BufferView(const Buffer &buffer)
+	: BufferView{ buffer.Data(), buffer.Size() }
+{
+}
+
 BufferView::BufferView(const Byte *data, const size_t size)
 	: data{ data }
 	, size{ size }
@@ -118,6 +123,16 @@ BufferView::BufferView(const Byte *data, const size_t size)
 BufferView::BufferView(const Byte *first, const Byte *last)
 	: BufferView{ first, (size_t)(last - first) }
 {
+}
+
+const Byte *BufferView::begin() const
+{
+	return data;
+}
+
+const Byte *BufferView::end() const
+{
+	return data + size;
 }
 
 const Byte *BufferView::Data() const

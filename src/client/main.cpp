@@ -49,7 +49,15 @@ int main()
 
 	const Buffer response{ socket.ReceiveAll() };
 	std::string responseAsString{ response.begin(), response.end() };
-	std::cout << responseAsString << "\n";
+	// std::cout << responseAsString << "\n";
+
+	const char *str = "Hello world!\n";
+	Buffer buffer{ str, strlen(str) };
+	BufferView view{ buffer };
+	for (auto byte : view)
+	{
+		std::cout << byte;
+	}
 
 	return 0;
 }
