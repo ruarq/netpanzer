@@ -48,21 +48,36 @@ public:
 	/**
 	 * @brief Disconnect the socket
 	 */
-	 void Disconnect();
+	void Disconnect();
 
 	/**
-	 * @brief Send data
+	 * @brief Send data, not guaranteed that everything will be sent
 	 * @param buffer The buffer to send
 	 * @return The amount of bytes sent
 	 */
 	NP_NODISCARD ssize_t Send(const BufferView &buffer);
 
 	/**
-	 * @brief Receive data
+	 * @brief Send all data
+	 * @param buffer The buffer
+	 * @param packetSize The size per packet (0 means send as much as possible per iteration)
+	 * @return The amount of bytes sent
+	 */
+	NP_NODISCARD ssize_t SendAll(const BufferView &buffer, size_t packetSize = 0);
+
+	/**
+	 * @brief Receive data, not guaranteed that everything will be received
 	 * @param maxBufferSize The max buffer size
 	 * @return Buffer containing the data received
 	 */
 	NP_NODISCARD Buffer Receive(size_t maxBufferSize = NP_NET_DEFAULT_BUFFER_SIZE);
+
+	/**
+	 * @brief Receive all data
+	 * @param packetSize The size to read per packet
+	 * @return Buffer containing the data received
+	 */
+	NP_NODISCARD Buffer ReceiveAll(size_t packetSize = 0);
 };
 
 }

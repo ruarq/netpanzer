@@ -56,12 +56,63 @@ ssize_t TcpSocket::Send(const BufferView &buffer)
 	return send(socketFd, buffer.Data(), buffer.Size(), 0);
 }
 
+ssize_t TcpSocket::SendAll(const BufferView &buffer, size_t packetSize)
+{
+	if (packetSize == 0)
+	{
+		packetSize = buffer.Size();
+	}
+
+	ssize_t bytesSent = 0;
+	do
+	{
+		ssize_t packetBytesSent = 0;
+		do
+		{
+			packetBytesSent +=
+				Send(BufferView{ buffer.Data() + bytesSent, buffer.Size() - bytesSent });
+		}
+		while (packetBytesSent < packetSize && bytesSent < buffer.Size());
+		bytesSent += packetBytesSent;
+	}
+	while (bytesSent < buffer.Size());
+
+	return bytesSent;
+}
+
 Buffer TcpSocket::Receive(const size_t maxBufferSize)
 {
 	Buffer buffer{ maxBufferSize };
 	const ssize_t bytesReceived = recv(socketFd, buffer.Data(), buffer.Size(), 0);
 
 	buffer.Resize(bytesReceived);
+	return buffer;
+}
+
+Buffer TcpSocket::ReceiveAll(size_t packetSize)
+{
+	if (packetSize == 0)
+	{
+		packetSize = NP_NET_DEFAULT_BUFFER_SIZE;
+	}
+
+	Buffer buffer{ 0 };
+	Buffer received{ Receive(packetSize) };
+	
+	while (!received.Empty())
+	{
+		// Cache buffer.Size() because buffer.Resize() changes it
+		const size_t bufferSize = buffer.Size();
+
+		// Resize the buffer to fit the received data
+		buffer.Resize(bufferSize + received.Size());
+
+		// Copy the received data into the buffer
+		std::memcpy(buffer.Data() + bufferSize, received.Data(), received.Size());
+
+		received = Receive(packetSize);
+	}
+
 	return buffer;
 }
 

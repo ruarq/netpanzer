@@ -37,26 +37,21 @@ int main()
 	if (!open)
 	{
 		std::cout << "Couldn't open a connection!\n";
-		std::cout << strerror(errno) << "\n";
 		return 1;
 	}
 
-	ssize_t bytesSent{};
-	do
+	const ssize_t bytesSent =
+		socket.SendAll(BufferView{ (Byte *)httpRequest.data(), httpRequest.size() });
+	if (bytesSent != httpRequest.size())
 	{
-		bytesSent += socket.Send(BufferView{ (Byte *)httpRequest.data(), httpRequest.size() });
+		std::cout << "Couldn't send http request!\n";
+		return 1;
 	}
-	while (bytesSent < httpRequest.size());
 
 	std::string response;
-	Buffer part{ NP_NET_DEFAULT_BUFFER_SIZE };
-	do
-	{
-		part = std::move(socket.Receive(NP_NET_DEFAULT_BUFFER_SIZE));
-		response += std::string{ part.Data(), part.Data() + part.Size() };
-	}
-	while (!part.Empty());
+	Buffer buffer{ socket.ReceiveAll() };
 
+	response = std::string{ buffer.Data(), buffer.Data() + buffer.Size() };
 	std::cout << response << "\n";
 
 	return 0;
