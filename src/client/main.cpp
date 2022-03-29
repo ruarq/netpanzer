@@ -21,42 +21,34 @@
 #include <iostream>
 
 #include <Net/TcpSocket.hpp>
-#include <Net/UdpSocket.hpp>
 #include <common.hpp>
 
 using namespace NetPanzer;
 
 int main()
 {
-	const std::string_view httpRequest = "GET / HTTP/1.1\r\n"
-										 "Host: www.example.com\r\n"
-										 "Connection: close\r\n\r\n";
-
-	Net::TcpSocket socket;
-	const bool open = socket.Connect("www.example.com", 80);
-	if (!open)
+	Net::TcpSocket client;
+	const bool connected = client.Connect(NP_NET_THIS_HOSTNAME, NP_NET_PORT_TCP);
+	if (!connected)
 	{
-		std::cout << "Couldn't open a connection!\n";
+		std::cout << "Couldn't connect\n";
 		return 1;
 	}
 
-	const ssize_t bytesSent = socket.SendAll(BufferView{ httpRequest.begin(), httpRequest.end() });
-	if (bytesSent != httpRequest.size())
+	while (true)
 	{
-		std::cout << "Couldn't send http request!\n";
-		return 1;
-	}
+		std::cout << "Send: ";
+		std::string input;
+		std::getline(std::cin, input);
 
-	const Buffer response{ socket.ReceiveAll() };
-	std::string responseAsString{ response.begin(), response.end() };
-	// std::cout << responseAsString << "\n";
+		if (input.empty())
+		{
+			break;
+		}
 
-	const char *str = "Hello world!\n";
-	Buffer buffer{ str, strlen(str) };
-	BufferView view{ buffer };
-	for (auto byte : view)
-	{
-		std::cout << byte;
+		client.SendAll(BufferView{ input.data(), input.size() });
+		Buffer received = client.ReceiveAll(input.size());
+		std::cout << "Recv: " << std::string{ received.begin(), received.end() } << "\n";
 	}
 
 	return 0;

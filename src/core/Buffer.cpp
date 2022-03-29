@@ -68,20 +68,24 @@ const Byte *Buffer::end() const
 
 void Buffer::Resize(const size_t newSize)
 {
-	if (newSize > size)
+	if (newSize != size)
 	{
 		// allocate a bigger buffer
 		auto buffer = new Byte[newSize];
 
 		// copy the data and delete the old buffer
-		std::memcpy(buffer, data, size);
+		std::memcpy(buffer, data, std::min(size, newSize));
 		delete[] data;
 
-		// set new buffer
+		// set new buffer & size
 		data = buffer;
+		size = newSize;
 	}
+}
 
-	size = newSize;
+void Buffer::Clear()
+{
+	Resize(0);
 }
 
 Byte *Buffer::Data()

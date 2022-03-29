@@ -27,13 +27,18 @@
 namespace NetPanzer::Net
 {
 
-class TcpSocket : Socket
+class TcpSocket : protected Socket
 {
 public:
 	/**
 	 * @brief Initialize a TCP socket
 	 */
 	TcpSocket();
+
+	/**
+	 * @brief Initialize a TCP socket with an existing socket file descriptor
+	 */
+	explicit TcpSocket(SocketFd socket);
 
 public:
 	/**
@@ -44,7 +49,7 @@ public:
 	 */
 	NP_NODISCARD bool
 	Connect(const std::string &hostname, Port port, ProtocolFamily family = ProtocolFamily::Any);
-	
+
 	/**
 	 * @brief Disconnect the socket
 	 */
@@ -63,7 +68,7 @@ public:
 	 * @param packetSize The size per packet (0 means send as much as possible per iteration)
 	 * @return The amount of bytes sent
 	 */
-	NP_NODISCARD ssize_t SendAll(const BufferView &buffer, size_t packetSize = 0);
+	ssize_t SendAll(const BufferView &buffer, size_t packetSize = 0);
 
 	/**
 	 * @brief Receive data, not guaranteed that everything will be received
@@ -74,10 +79,17 @@ public:
 
 	/**
 	 * @brief Receive all data
-	 * @param packetSize The size to read per packet
+	 * @param packetSize The size of the packet
 	 * @return Buffer containing the data received
 	 */
-	NP_NODISCARD Buffer ReceiveAll(size_t packetSize = 0);
+	NP_NODISCARD Buffer ReceiveAll(size_t packetSize);
+
+	NP_NODISCARD bool
+	Bind(const std::string &hostname, Port port, ProtocolFamily family = ProtocolFamily::Any);
+
+	NP_NODISCARD bool Listen(int backlog = NP_NET_DEFAULT_BACKLOG);
+
+	NP_NODISCARD TcpSocket Accept();
 };
 
 }

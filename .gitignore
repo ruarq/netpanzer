@@ -1,9 +1,7 @@
+bin
+
 # MacOSX
 .DS_Store
-
-# CMake
-cmake-build-debug
-cmake-build-release
 
 # CLion
 .idea

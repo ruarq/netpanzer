@@ -28,6 +28,12 @@ TcpSocket::TcpSocket()
 {
 }
 
+TcpSocket::TcpSocket(const SocketFd socket)
+	: TcpSocket{}
+{
+	socketFd = socket;
+}
+
 bool TcpSocket::Connect(const std::string &hostname, Port port, ProtocolFamily family)
 {
 	if (socketFd != NP_SOCKET_INVALID)
@@ -84,7 +90,15 @@ Buffer TcpSocket::Receive(const size_t maxBufferSize)
 	Buffer buffer{ maxBufferSize };
 	const ssize_t bytesReceived = recv(socketFd, buffer.Data(), buffer.Size(), 0);
 
-	buffer.Resize(bytesReceived);
+	if (bytesReceived > 0)
+	{
+		buffer.Resize(bytesReceived);
+	}
+	else
+	{
+		buffer.Clear();
+	}
+
 	return buffer;
 }
 
@@ -95,24 +109,35 @@ Buffer TcpSocket::ReceiveAll(size_t packetSize)
 		packetSize = NP_NET_DEFAULT_BUFFER_SIZE;
 	}
 
-	Buffer buffer{ 0 };
-	Buffer received{ Receive(packetSize) };
+	Buffer buffer{ packetSize };
 
-	while (!received.Empty())
+	size_t bytesReceived = 0;
+	while (bytesReceived < packetSize)
 	{
-		// Cache buffer.Size() because buffer.Resize() changes it
-		const size_t bufferSize = buffer.Size();
-
-		// Resize the buffer to fit the received data
-		buffer.Resize(bufferSize + received.Size());
-
-		// Copy the received data into the buffer
-		std::memcpy(buffer.Data() + bufferSize, received.Data(), received.Size());
-
-		received = Receive(packetSize);
+		Buffer received = Receive(packetSize - bytesReceived);
+		std::memcpy(buffer.Data() + bytesReceived, received.Data(), received.Size());
+		bytesReceived += received.Size();
 	}
 
 	return buffer;
+}
+
+bool TcpSocket::Bind(const std::string &hostname, const Port port, const ProtocolFamily family)
+{
+	// TODO(ruarq): setsockopts
+	const auto address = GetAddressInfo(hostname, port, family);
+	socketFd = socket(address->ai_family, SOCK_STREAM, (int)protocol);
+	return bind(socketFd, address->ai_addr, address->ai_addrlen) == 0;
+}
+
+bool TcpSocket::Listen(const int backlog)
+{
+	return listen(socketFd, backlog) == 0;
+}
+
+TcpSocket TcpSocket::Accept()
+{
+	return TcpSocket{ accept(socketFd, nullptr, nullptr) };
 }
 
 }

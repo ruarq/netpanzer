@@ -21,12 +21,39 @@
 #include <iostream>
 
 #include <Net/TcpSocket.hpp>
+#include <common.hpp>
 
 using namespace NetPanzer;
 
 int main()
 {
 	Net::TcpSocket socket;
+	const bool bind = socket.Bind(NP_NET_THIS_HOSTNAME, NP_NET_PORT_TCP);
+	if (!bind)
+	{
+		std::cout << "Couldn't bind socket!\n";
+		return 1;
+	}
+
+	const bool listen = socket.Listen();
+	if (!listen)
+	{
+		std::cout << "socket.Listen() failed!\n";
+	}
+
+	Net::TcpSocket client = socket.Accept();
+
+	while (true)
+	{
+		Buffer received = client.Receive();
+		if (received.Empty())
+		{
+			break;
+		}
+
+		std::cout << "Recv: " << std::string{ received.begin(), received.end() } << "\n";
+		client.SendAll(BufferView{ received });
+	}
 
 	return 0;
 }

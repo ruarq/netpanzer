@@ -81,6 +81,11 @@ public:
 	void Resize(size_t newSize);
 
 	/**
+	 * @brief Clear the buffer
+	 */
+	 void Clear();
+
+	/**
 	 * @brief Get the stored data
 	 * @return Byte* to the data
 	 */

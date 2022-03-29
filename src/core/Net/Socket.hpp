@@ -49,9 +49,13 @@ using SocketFd = SOCKET;
 
 #define NP_SOCKET_INVALID ((SocketFd)-1)
 
-#define NP_PORT_TCP 42069
-#define NP_PORT_UDP 12345
+#define NP_NET_PORT_TCP 42069
+#define NP_NET_PORT_UDP 12345
 #define NP_NET_DEFAULT_BUFFER_SIZE (1024 * 4)	 // 4 kB
+#define NP_NET_DEFAULT_BACKLOG 5
+
+// The hostname of this machine
+#define NP_NET_THIS_HOSTNAME (std::string{})
 
 enum class Protocol
 {
@@ -102,7 +106,7 @@ public:
 	 * @return The native socket handle
 	 */
 	NP_NODISCARD SocketFd NativeHandle() const;
-	
+
 protected:
 	/**
 	 * @brief Get address information using the hostname, port and procotol family.
