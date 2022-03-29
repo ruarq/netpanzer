@@ -32,7 +32,7 @@
 namespace NetPanzer
 {
 
-using Byte = uint8_t;
+using Byte = char;
 
 }
 
