@@ -27,7 +27,7 @@
 namespace NetPanzer::Net
 {
 
-class UdpSocket : Socket
+class UdpSocket : public Socket
 {
 public:
 	/**

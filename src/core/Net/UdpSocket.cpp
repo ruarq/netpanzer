@@ -52,7 +52,7 @@ ssize_t UdpSocket::SendTo(const std::string &hostname, const Port port, const Bu
 
 	// This happens when the udp socket was constructed with ProtocolFamily::Any,
 	// since we can't construct a socket when we don't know its family
-	if (socketFd == NP_SOCKET_INVALID)
+	if (socketFd == NP_NET_INVALID_SOCKET_VALUE)
 	{
 		socketFd = socket(address->ai_family, SOCK_DGRAM, (int)protocol);
 		family = (ProtocolFamily)address->ai_family;
@@ -71,7 +71,7 @@ UdpSocket::ReceiveFrom(const std::string &hostname, const Port port, const size_
 	}
 
 	// If you're wondering about this, please look into the SentTo function
-	if (socketFd == NP_SOCKET_INVALID)
+	if (socketFd == NP_NET_INVALID_SOCKET_VALUE)
 	{
 		socketFd = socket(address->ai_family, SOCK_DGRAM, (int)protocol);
 		family = (ProtocolFamily)address->ai_family;

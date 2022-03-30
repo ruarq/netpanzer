@@ -29,7 +29,7 @@ constexpr int ProtocolToSocketType(const Protocol protocol)
 }
 
 Socket::Socket(const Protocol protocol)
-	: socketFd{ NP_SOCKET_INVALID }
+	: socketFd{ NP_NET_INVALID_SOCKET_VALUE }
 	, protocol{ protocol }
 {
 }
@@ -39,7 +39,7 @@ Socket::~Socket()
 	Close();
 }
 
-SocketFd Socket::NativeHandle() const
+SocketFd Socket::NativeFd() const
 {
 	return socketFd;
 }
@@ -77,7 +77,7 @@ UniqueAddrinfoPtr Socket::GetAddressInfo(const std::string &hostname,
 void Socket::Close()
 {
 	close(socketFd);
-	socketFd = NP_SOCKET_INVALID;
+	socketFd = NP_NET_INVALID_SOCKET_VALUE;
 }
 
 }

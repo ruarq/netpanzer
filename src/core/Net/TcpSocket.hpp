@@ -21,19 +21,32 @@
 #ifndef NP_TCPSOCKET_HPP
 #define NP_TCPSOCKET_HPP
 
+#include <thread>
+
 #include "../Buffer.hpp"
 #include "Socket.hpp"
 
 namespace NetPanzer::Net
 {
 
-class TcpSocket : protected Socket
+class TcpSocket : public Socket
 {
 public:
 	/**
 	 * @brief Initialize a TCP socket
 	 */
 	TcpSocket();
+
+	/**
+	 * @brief Move constructor
+	 * @param socket Socket to move
+	 */
+	TcpSocket(TcpSocket &&socket) noexcept;
+
+	/**
+	 * @brief Delete copy constructor
+	 */
+	TcpSocket(const TcpSocket &socket) = delete;
 
 	/**
 	 * @brief Initialize a TCP socket with an existing socket file descriptor
@@ -45,7 +58,8 @@ public:
 	 * @brief Connect a connection to a host
 	 * @param hostname The hostname
 	 * @param port The port
-	 * @return True if opening the connection was successful, otherwise false
+	 * @return True if opening the connection was successful
+	 * @return False if opening the connection failed
 	 */
 	NP_NODISCARD bool
 	Connect(const std::string &hostname, Port port, ProtocolFamily family = ProtocolFamily::Any);
@@ -84,12 +98,34 @@ public:
 	 */
 	NP_NODISCARD Buffer ReceiveAll(size_t packetSize);
 
+	/**
+	 * @brief Bind this socket to a name
+	 * @param hostname The hostname
+	 * @param port The port
+	 * @param family The address family
+	 * @return True on success
+	 * @return False on failure
+	 */
 	NP_NODISCARD bool
 	Bind(const std::string &hostname, Port port, ProtocolFamily family = ProtocolFamily::Any);
 
+	/**
+	 * @brief Use this socket to listen for incoming connections
+	 * @param backlog
+	 * @return
+	 */
 	NP_NODISCARD bool Listen(int backlog = NP_NET_DEFAULT_BACKLOG);
 
+	/**
+	 * @brief Accept an incoming connection
+	 * @return A socket connected to the client
+	 */
 	NP_NODISCARD TcpSocket Accept();
+
+	/**
+	 * @brief Move assigment operator
+	 */
+	TcpSocket &operator=(TcpSocket &&socket) noexcept;
 };
 
 }

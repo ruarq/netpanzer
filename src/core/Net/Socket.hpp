@@ -47,8 +47,7 @@ using SocketFd = int;
 using SocketFd = SOCKET;
 #endif
 
-#define NP_SOCKET_INVALID ((SocketFd)-1)
-
+#define NP_NET_INVALID_SOCKET_VALUE ((SocketFd)-1)
 #define NP_NET_PORT_TCP 42069
 #define NP_NET_PORT_UDP 12345
 #define NP_NET_DEFAULT_BUFFER_SIZE (1024 * 4)	 // 4 kB
@@ -105,7 +104,7 @@ public:
 	 * @brief Get the native handle of the socket
 	 * @return The native socket handle
 	 */
-	NP_NODISCARD SocketFd NativeHandle() const;
+	NP_NODISCARD SocketFd NativeFd() const;
 
 protected:
 	/**

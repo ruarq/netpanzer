@@ -28,6 +28,12 @@ TcpSocket::TcpSocket()
 {
 }
 
+TcpSocket::TcpSocket(TcpSocket &&socket) noexcept
+	: TcpSocket()
+{
+	this->operator=(std::move(socket));
+}
+
 TcpSocket::TcpSocket(const SocketFd socket)
 	: TcpSocket{}
 {
@@ -133,6 +139,13 @@ bool TcpSocket::Listen(const int backlog)
 TcpSocket TcpSocket::Accept()
 {
 	return TcpSocket{ accept(socketFd, nullptr, nullptr) };
+}
+
+TcpSocket &TcpSocket::operator=(TcpSocket &&socket) noexcept
+{
+	socketFd = socket.socketFd;
+	socket.socketFd = NP_NET_INVALID_SOCKET_VALUE;
+	return *this;
 }
 
 }

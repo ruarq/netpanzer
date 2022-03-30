@@ -27,8 +27,8 @@ using namespace NetPanzer;
 
 int main()
 {
-	Net::TcpSocket client;
-	const bool connected = client.Connect(NP_NET_THIS_HOSTNAME, NP_NET_PORT_TCP);
+	Net::TcpSocket socket;
+	const bool connected = socket.Connect(NP_NET_THIS_HOSTNAME, NP_NET_PORT_TCP);
 	if (!connected)
 	{
 		std::cout << "Couldn't connect\n";
@@ -37,18 +37,14 @@ int main()
 
 	while (true)
 	{
-		std::cout << "Send: ";
-		std::string input;
-		std::getline(std::cin, input);
-
-		if (input.empty())
+		Buffer buffer = socket.Receive();
+		if (buffer.Empty())
 		{
 			break;
 		}
 
-		client.SendAll(BufferView{ input.data(), input.size() });
-		Buffer received = client.ReceiveAll(input.size());
-		std::cout << "Recv: " << std::string{ received.begin(), received.end() } << "\n";
+		std::cout << std::string{ buffer.begin(), buffer.end() } << "\n";
+		socket.SendAll(BufferView{ buffer });
 	}
 
 	return 0;

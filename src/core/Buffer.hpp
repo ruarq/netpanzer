@@ -83,7 +83,7 @@ public:
 	/**
 	 * @brief Clear the buffer
 	 */
-	 void Clear();
+	void Clear();
 
 	/**
 	 * @brief Get the stored data
@@ -119,16 +119,7 @@ public:
 	/**
 	 * @brief Move the buffer
 	 */
-	inline Buffer &operator=(Buffer &&buffer) noexcept
-	{
-		data = buffer.data;
-		size = buffer.size;
-
-		buffer.data = nullptr;
-		buffer.size = 0;
-
-		return *this;
-	}
+	Buffer &operator=(Buffer &&buffer) noexcept;
 
 private:
 	Byte *data{};

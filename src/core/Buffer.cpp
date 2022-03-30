@@ -43,7 +43,7 @@ Buffer::~Buffer()
 
 Buffer::Buffer(Buffer &&buffer) noexcept
 {
-	operator=(std::move(buffer));
+	this->operator=(std::move(buffer));
 }
 
 Byte *Buffer::begin()
@@ -111,6 +111,17 @@ bool Buffer::Empty() const
 Byte &Buffer::operator[](const size_t index)
 {
 	return data[index];
+}
+
+Buffer &Buffer::operator=(Buffer &&buffer) noexcept
+{
+	data = buffer.data;
+	size = buffer.size;
+
+	buffer.data = nullptr;
+	buffer.size = 0;
+
+	return *this;
 }
 
 BufferView::BufferView(const Buffer &buffer)
