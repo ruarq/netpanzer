@@ -92,11 +92,11 @@ public:
 	NP_NODISCARD Buffer Receive(size_t maxBufferSize = NP_NET_DEFAULT_BUFFER_SIZE);
 
 	/**
-	 * @brief Receive all data
-	 * @param packetSize The size of the packet
+	 * @brief Receive N bytes
+	 * @param bytes The amount of bytes to receive
 	 * @return Buffer containing the data received
 	 */
-	NP_NODISCARD Buffer ReceiveAll(size_t packetSize);
+	NP_NODISCARD Buffer ReceiveN(size_t bytes);
 
 	/**
 	 * @brief Bind this socket to a name

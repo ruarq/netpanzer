@@ -103,19 +103,19 @@ Buffer TcpSocket::Receive(const size_t maxBufferSize)
 	return buffer;
 }
 
-Buffer TcpSocket::ReceiveAll(size_t packetSize)
+Buffer TcpSocket::ReceiveN(size_t bytes)
 {
-	if (packetSize == 0)
+	if (bytes == 0)
 	{
-		packetSize = NP_NET_DEFAULT_BUFFER_SIZE;
+		bytes = NP_NET_DEFAULT_BUFFER_SIZE;
 	}
 
-	Buffer buffer{ packetSize };
+	Buffer buffer{ bytes };
 
 	size_t bytesReceived = 0;
-	while (bytesReceived < packetSize)
+	while (bytesReceived < bytes)
 	{
-		Buffer received = Receive(packetSize - bytesReceived);
+		Buffer received = Receive(bytes - bytesReceived);
 		std::memcpy(buffer.Data() + bytesReceived, received.Data(), received.Size());
 		bytesReceived += received.Size();
 	}
