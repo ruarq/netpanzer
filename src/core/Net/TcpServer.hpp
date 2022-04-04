@@ -18,50 +18,46 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#ifndef NP_UDPSOCKET_HPP
-#define NP_UDPSOCKET_HPP
+#ifndef NP_TCPSERVER_HPP
+#define NP_TCPSERVER_HPP
 
-#include "../Buffer.hpp"
-#include "Socket.hpp"
+#include <atomic>
+#include <thread>
+
+#include "../common.hpp"
+#include "TcpSocket.hpp"
 
 namespace NetPanzer::Net
 {
 
-class UdpSocket : public Socket
+class TcpServer
 {
 public:
-	/**
-	 * @brief Initialize a UDP masterSocket. NOTE: If you're initializing with Net::ProtocolFamily::Any,
-	 * the protocol family will be decided on first call to
-	 * UdpSocket::SentTo or UdpSocket::ReceiveFrom automatically and can't and won't be
-	 * changed afterwards.
-	 * @param family
-	 */
-	explicit UdpSocket(ProtocolFamily family);
+	~TcpServer();
 
 public:
 	/**
-	 * @brief Send some data to a host
-	 * @param hostname The hostname
-	 * @param port The port
-	 * @param buffer The data
-	 * @return The amount of bytes sent
+	 * @brief Start running the server in it's own thread
 	 */
-	NP_NODISCARD ssize_t SendTo(const std::string &hostname, Port port, const BufferView &buffer);
+	void AsyncRun();
 
-	/**
-	 * @brief Receive some data from a host
-	 * @param hostname The hostname
-	 * @param port The port
-	 * @param maxBufferSize The max buffer size
-	 * @return Buffer containing the data received
-	 */
-	NP_NODISCARD Buffer ReceiveFrom(const std::string &hostname,
-		Port port,
-		size_t maxBufferSize = NP_NET_DEFAULT_BUFFER_SIZE);
+	virtual void OnClientConnect(TcpSocket &&socket) = 0;
+	virtual void OnReceive(TcpSocket &socket) = 0;
+
+protected:
+	void Accept(TcpSocket &&newClient);
 
 private:
-	ProtocolFamily family;
+	void Select();
+	TcpSocket &GetSocketByFd(SocketFd socketFd);
+
+protected:
+	TcpSocket master;
+	std::vector<TcpSocket> clients;
+
+private:
+	std::thread thread;
+	std::atomic_bool running = true;
 };
 
 }

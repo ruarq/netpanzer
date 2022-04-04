@@ -93,16 +93,16 @@ class Socket
 {
 protected:
 	/**
-	 * @brief Initialize a socket
-	 * @param protocol The type of protocol the socket uses
+	 * @brief Initialize a masterSocket
+	 * @param protocol The type of protocol the masterSocket uses
 	 */
 	explicit Socket(Protocol protocol);
 	virtual ~Socket();
 
 public:
 	/**
-	 * @brief Get the native handle of the socket
-	 * @return The native socket handle
+	 * @brief Get the native handle of the masterSocket
+	 * @return The native masterSocket handle
 	 */
 	NP_NODISCARD SocketFd NativeFd() const;
 
@@ -112,14 +112,15 @@ protected:
 	 * @param hostname The hostname. Leave empty to get information about this host
 	 * @param port The port
 	 * @param family The protocol family
-	 * @return Pointer to addrinfo* containing the address information. Returns nullptr if something went wrong.
+	 * @return Pointer to addrinfo* containing the address information.
+	 * @return nullptr If something went wrong
 	 */
 	NP_NODISCARD UniqueAddrinfoPtr GetAddressInfo(const std::string &hostname,
 		Port port,
 		ProtocolFamily family) const;
 
 	/**
-	 * @brief Close the socket
+	 * @brief Close the masterSocket
 	 */
 	void Close();
 
@@ -127,6 +128,28 @@ protected:
 	SocketFd socketFd;
 	Protocol protocol;
 };
+
+/**
+ * @brief Compare two sockets for equality
+ * @return true If they're the same socket
+ * @return false If they're not the same socket
+ */
+template<typename TSocket>
+bool operator==(const TSocket &a, const TSocket &b)
+{
+	return a.NativeFd() == b.NativeFd();
+}
+
+/**
+ * @brief Compare two sockets for inequality
+ * @return true If they're not the same socket
+ * @return false If they're the same socket
+ */
+template<typename TSocket>
+bool operator!=(const TSocket &a, const TSocket &b)
+{
+	return a.NativeFd() != b.NativeFd();
+}
 
 }
 

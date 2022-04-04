@@ -20,40 +20,53 @@
 
 #include <iostream>
 
+#include <Net/TcpServer.hpp>
 #include <Net/TcpSocket.hpp>
 #include <common.hpp>
 
 using namespace NetPanzer;
 
+class TcpChat : public Net::TcpServer
+{
+public:
+	TcpChat()
+	{
+		master.Bind(NP_NET_THIS_HOSTNAME, NP_NET_PORT_TCP);
+		master.Listen();
+	}
+
+public:
+	void OnClientConnect(Net::TcpSocket &&newClient) override
+	{
+		const std::string_view verify = "netPanzer Client";
+		const Buffer buffer = newClient.ReceiveN(verify.size());
+
+		const std::string message{ buffer.begin(), buffer.end() };
+		if (message == verify)
+		{
+			Accept(std::move(newClient));
+		}
+	}
+
+	void OnReceive(Net::TcpSocket &client) override
+	{
+		const Buffer msg = client.Receive();
+		for (Net::TcpSocket &socket : clients)
+		{
+			if (socket != client)
+			{
+				socket.SendAll(BufferView{ msg });
+			}
+		}
+	}
+};
+
 int main()
 {
-	Net::TcpSocket socket;
-	const bool bind = socket.Bind(NP_NET_THIS_HOSTNAME, NP_NET_PORT_TCP);
-	if (!bind)
-	{
-		std::cout << "Couldn't bind socket!\n";
-		return 1;
-	}
+	TcpChat chat;
+	chat.AsyncRun();
 
-	const bool listen = socket.Listen();
-	if (!listen)
-	{
-		std::cout << "socket.Listen() failed!\n";
-	}
-
-	Net::TcpSocket client = socket.Accept();
-
-	while (true)
-	{
-		Buffer received = client.Receive();
-		if (received.Empty())
-		{
-			break;
-		}
-
-		std::cout << "Recv: " << std::string{ received.begin(), received.end() } << "\n";
-		client.SendAll(BufferView{ received });
-	}
+	getchar();
 
 	return 0;
 }

@@ -35,16 +35,21 @@ int main()
 		return 1;
 	}
 
+	std::string_view verify = "netPanzer Client";
+	socket.SendAll(BufferView{ verify.begin(), verify.end() });
+
 	while (true)
 	{
-		Buffer buffer = socket.Receive();
-		if (buffer.Empty())
+		std::string msg;
+		std::getline(std::cin, msg);
+		if (msg.empty())
 		{
 			break;
 		}
 
-		std::cout << std::string{ buffer.begin(), buffer.end() } << "\n";
-		socket.SendAll(BufferView{ buffer });
+		socket.SendAll(BufferView{ msg.data(), msg.size() });
+		const Buffer recv = socket.Receive();
+		std::cout << std::string{ recv.begin(), recv.end() } << "\n";
 	}
 
 	return 0;

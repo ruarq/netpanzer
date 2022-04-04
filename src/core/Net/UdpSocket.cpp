@@ -50,8 +50,8 @@ ssize_t UdpSocket::SendTo(const std::string &hostname, const Port port, const Bu
 		return -1;
 	}
 
-	// This happens when the udp socket was constructed with ProtocolFamily::Any,
-	// since we can't construct a socket when we don't know its family
+	// This happens when the udp masterSocket was constructed with ProtocolFamily::Any,
+	// since we can't construct a masterSocket when we don't know its family
 	if (socketFd == NP_NET_INVALID_SOCKET_VALUE)
 	{
 		socketFd = socket(address->ai_family, SOCK_DGRAM, (int)protocol);

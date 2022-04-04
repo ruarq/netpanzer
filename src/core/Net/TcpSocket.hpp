@@ -33,7 +33,7 @@ class TcpSocket : public Socket
 {
 public:
 	/**
-	 * @brief Initialize a TCP socket
+	 * @brief Initialize a TCP masterSocket
 	 */
 	TcpSocket();
 
@@ -49,7 +49,7 @@ public:
 	TcpSocket(const TcpSocket &socket) = delete;
 
 	/**
-	 * @brief Initialize a TCP socket with an existing socket file descriptor
+	 * @brief Initialize a TCP masterSocket with an existing masterSocket file descriptor
 	 */
 	explicit TcpSocket(SocketFd socket);
 
@@ -65,7 +65,7 @@ public:
 	Connect(const std::string &hostname, Port port, ProtocolFamily family = ProtocolFamily::Any);
 
 	/**
-	 * @brief Disconnect the socket
+	 * @brief Disconnect the masterSocket
 	 */
 	void Disconnect();
 
@@ -99,7 +99,7 @@ public:
 	NP_NODISCARD Buffer ReceiveN(size_t bytes);
 
 	/**
-	 * @brief Bind this socket to a name
+	 * @brief Bind this masterSocket to a name
 	 * @param hostname The hostname
 	 * @param port The port
 	 * @param family The address family
@@ -110,7 +110,7 @@ public:
 	Bind(const std::string &hostname, Port port, ProtocolFamily family = ProtocolFamily::Any);
 
 	/**
-	 * @brief Use this socket to listen for incoming connections
+	 * @brief Use this masterSocket to listen for incoming connections
 	 * @param backlog
 	 * @return
 	 */
@@ -118,7 +118,7 @@ public:
 
 	/**
 	 * @brief Accept an incoming connection
-	 * @return A socket connected to the client
+	 * @return A masterSocket connected to the client
 	 */
 	NP_NODISCARD TcpSocket Accept();
 
@@ -126,6 +126,9 @@ public:
 	 * @brief Move assigment operator
 	 */
 	TcpSocket &operator=(TcpSocket &&socket) noexcept;
+
+private:
+	fd_set clients;
 };
 
 }
