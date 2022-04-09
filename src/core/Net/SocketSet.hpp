@@ -18,46 +18,63 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#ifndef NP_TCPSERVER_HPP
-#define NP_TCPSERVER_HPP
+#ifndef NP_SOCKETSET_HPP
+#define NP_SOCKETSET_HPP
 
-#include <atomic>
-#include <thread>
+#include <cmath>
 
 #include "../common.hpp"
-#include "TcpSocket.hpp"
+#include "Socket.hpp"
 
 namespace NetPanzer::Net
 {
 
-class TcpServer
+class SocketSet
 {
 public:
-	~TcpServer();
-
-public:
 	/**
-	 * @brief Start running the server in it's own thread
+	 * @brief Add a socket to check for incoming data
+	 * @param socket The socket
 	 */
-	void AsyncRun();
+	void AddForRead(const Socket &socket);
 
-	virtual void OnClientConnect(TcpSocket &&socket) = 0;
-	virtual void OnReceive(TcpSocket &socket) = 0;
+	/**
+	 * @brief Add a socket to check if it's readable
+	 * @param socket The socket
+	 */
+	void AddForWrite(const Socket &socket);
 
-protected:
-	void Accept(TcpSocket &&newClient);
+	/**
+	 * @brief Check if there is incoming data for that socket
+	 * @param socket The socket
+	 * @return true If there is incoming data
+	 * @return false If there is no incoming data
+	 */
+	NP_NODISCARD bool IsDataAvailable(const Socket &socket) const;
+
+	/**
+	 * @brief Check if the socket is writeable
+	 * @param socket The socket
+	 * @return true If the socket is writeable
+	 * @return false If the socket isn't writeable
+	 */
+	NP_NODISCARD bool IsWriteable(const Socket &socket) const;
+
+	/**
+	 * @brief Wait for input on the sockets of the set
+	 * @param timeout The max time to wait for input in seconds. 0 is basically a poll,
+	 * and anything less than 0 means to just wait until input is available
+	 */
+	void Select(float timeout = -1.0f);
 
 private:
-	void Select();
-	TcpSocket &GetSocketByFd(SocketFd socketFd);
+	fd_set masterWriteFds{};
+	fd_set writeFds{};
 
-protected:
-	TcpSocket master;
-	std::vector<TcpSocket> clients;
+	fd_set masterReadFds{};
+	fd_set readFds{};
 
-private:
-	std::thread thread;
-	std::atomic_bool running = true;
+	SocketFd maxFd{};
 };
 
 }

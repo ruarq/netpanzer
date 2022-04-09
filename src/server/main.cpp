@@ -20,53 +20,59 @@
 
 #include <iostream>
 
-#include <Net/TcpServer.hpp>
+#include <Net/SocketSet.hpp>
 #include <Net/TcpSocket.hpp>
 #include <common.hpp>
 
 using namespace NetPanzer;
-
-class TcpChat : public Net::TcpServer
-{
-public:
-	TcpChat()
-	{
-		master.Bind(NP_NET_THIS_HOSTNAME, NP_NET_PORT_TCP);
-		master.Listen();
-	}
-
-public:
-	void OnClientConnect(Net::TcpSocket &&newClient) override
-	{
-		const std::string_view verify = "netPanzer Client";
-		const Buffer buffer = newClient.ReceiveN(verify.size());
-
-		const std::string message{ buffer.begin(), buffer.end() };
-		if (message == verify)
-		{
-			Accept(std::move(newClient));
-		}
-	}
-
-	void OnReceive(Net::TcpSocket &client) override
-	{
-		const Buffer msg = client.Receive();
-		for (Net::TcpSocket &socket : clients)
-		{
-			if (socket != client)
-			{
-				socket.SendAll(BufferView{ msg });
-			}
-		}
-	}
-};
+using namespace NetPanzer::Net;
 
 int main()
 {
-	TcpChat chat;
-	chat.AsyncRun();
+	TcpSocket server;
+	if (!server.Bind(NP_NET_LOCALHOST, NP_NET_PORT_TCP))
+	{
+		std::cout << "Bind failed\n";
+		return 1;
+	}
 
-	getchar();
+	if (!server.Listen())
+	{
+		std::cout << "Listen failed\n";
+		return 1;
+	}
+
+	std::vector<TcpSocket> clients;
+
+	SocketSet socketSet;
+	socketSet.AddForRead(server);
+
+	while (true)
+	{
+		socketSet.Select();
+		if (socketSet.IsDataAvailable(server))
+		{
+			std::cout << "New connection\n";
+			TcpSocket newSocket = server.Accept();
+			socketSet.AddForRead(newSocket);
+			clients.push_back(std::move(newSocket));
+		}
+
+		for (TcpSocket &client : clients)
+		{
+			if (socketSet.IsDataAvailable(client))
+			{
+				const Buffer received = client.Receive();
+				for (TcpSocket &otherClient : clients)
+				{
+					if (otherClient != client)
+					{
+						otherClient.SendAll(BufferView{ received });
+					}
+				}
+			}
+		}
+	}
 
 	return 0;
 }

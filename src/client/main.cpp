@@ -28,7 +28,7 @@ using namespace NetPanzer;
 int main()
 {
 	Net::TcpSocket socket;
-	const bool connected = socket.Connect(NP_NET_THIS_HOSTNAME, NP_NET_PORT_TCP);
+	const bool connected = socket.Connect(NP_NET_LOCALHOST, NP_NET_PORT_TCP);
 	if (!connected)
 	{
 		std::cout << "Couldn't connect\n";

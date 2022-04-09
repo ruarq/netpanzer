@@ -54,7 +54,7 @@ using SocketFd = SOCKET;
 #define NP_NET_DEFAULT_BACKLOG 5
 
 // The hostname of this machine
-#define NP_NET_THIS_HOSTNAME (std::string{})
+#define NP_NET_LOCALHOST (std::string{})
 
 enum class Protocol
 {
