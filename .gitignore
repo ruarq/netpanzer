@@ -1,4 +1,9 @@
 bin
+obj
+
+# gmake2
+Makefile
+*.make
 
 # MacOSX
 .DS_Store
