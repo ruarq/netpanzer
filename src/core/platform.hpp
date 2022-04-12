@@ -31,4 +31,4 @@
 	#error "Your platform is not supported."
 #endif
 
-#endif	  //NP_PLATFORM_HPP
+#endif
