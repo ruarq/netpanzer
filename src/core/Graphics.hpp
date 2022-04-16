@@ -13,12 +13,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <iostream>
+#ifndef GRAPHICS_HPP
+#define GRAPHICS_HPP
 
-#include <Graphics.hpp>
-#include <common.hpp>
+#include <SDL.h>
 
-int main()
+namespace NetPanzer
 {
-	return 0;
+
+struct Graphics
+{
+	SDL_Window *window{};
+	SDL_Renderer *renderer{};
+};
+
 }
+
+#endif

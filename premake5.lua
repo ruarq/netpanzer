@@ -1,10 +1,17 @@
+function sh(cmd)
+	local handle = io.popen(cmd)
+	local result = handle:read("*a")
+	handle:close()
+	return result
+end
+
 function add_package(pkg)
 	if (pkg == "SDL2") then
-		buildoptions { "`sdl2-config --cflags`" }
-		linkoptions { "`sdl2-config --libs`" }
+		buildoptions { sh("sdl2-config --cflags") }
+		linkoptions { sh("sdl2-config --libs") }
 	else
-		buildoptions { "`pkg-config " .. pkg .. " --cflags`" }
-		linkoptions { "`pkg-config " .. pkg ..  " --libs`" }
+		buildoptions { sh("pkg-config " .. pkg .. " --cflags") }
+		linkoptions { sh("pkg-config " .. pkg ..  " --libs") }
 	end
 end
 
@@ -18,12 +25,16 @@ workspace "netpanzer"
 language "C++"
 cppdialect "C++17"
 
+defines { "VERSION=\"0.0.1\"" }
+
 filter { "configurations:debug" }
 	symbols "On"
 	defines "DEBUG"
 
 filter { "configurations:release" }
 	optimize "Speed"
+
+filter {}
 
 ---------------------------------------------------------------
 

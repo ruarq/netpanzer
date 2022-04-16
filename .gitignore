@@ -5,6 +5,12 @@ obj
 Makefile
 *.make
 
+# cmake
+*.cmake
+CMakeLists.txt
+CMakeCache.txt
+CMakeFiles
+
 # MacOSX
 .DS_Store
 
