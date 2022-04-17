@@ -20,5 +20,29 @@
 
 int main()
 {
+	NetPanzer::Graphics::Init("NetPanzer v" VERSION, 1280, 720);
+
+	bool running = true;
+	while (running)
+	{
+		SDL_Event event;
+		while (SDL_PollEvent(&event))
+		{
+			switch (event.type)
+			{
+				case SDL_QUIT:
+					running = false;
+					break;
+
+				default:
+					break;
+			}
+		}
+
+		SDL_RenderClear(NetPanzer::Graphics::renderer);
+		SDL_RenderPresent(NetPanzer::Graphics::renderer);
+	}
+	NetPanzer::Graphics::Quit();
+
 	return 0;
 }

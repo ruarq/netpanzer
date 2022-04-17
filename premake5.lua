@@ -42,6 +42,8 @@ project "np_core"
 	kind "StaticLib"
 	files { "src/core/**.hpp", "src/core/**.cpp" }
 
+	add_package("SDL2")
+
 project "np_client"
 	kind "ConsoleApp"
 

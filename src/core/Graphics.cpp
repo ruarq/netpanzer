@@ -13,25 +13,47 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef GRAPHICS_HPP
-#define GRAPHICS_HPP
-
-#include <SDL.h>
+#include "Graphics.hpp"
 
 namespace NetPanzer
 {
 
-class Graphics
+SDL_Window *Graphics::window = nullptr;
+SDL_Renderer *Graphics::renderer = nullptr;
+
+void Graphics::Init(const char *windowTitle, const int width, const int height)
 {
-public:
-	static void Init(const char *windowTitle, int width, int height);
-	static void Quit();
+	if (SDL_Init(SDL_INIT_EVERYTHING) == -1)
+	{
+		// TODO(ruarq): Something went wrong
+	}
 
-public:
-	static SDL_Window *window;
-	static SDL_Renderer *renderer;
-};
+	window = SDL_CreateWindow(windowTitle,
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		width,
+		height,
+		SDL_WINDOW_SHOWN);
+	if (!window)
+	{
+		// TODO(ruarq): Something went wrong
+	}
 
+	renderer = SDL_CreateRenderer(window, -1, 0);
+	if (!renderer)
+	{
+		// TODO(ruarq): Something went wrong
+	}
 }
 
-#endif
+void Graphics::Quit()
+{
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
+
+	renderer = nullptr;
+	window = nullptr;
+}
+
+}
