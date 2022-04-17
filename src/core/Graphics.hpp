@@ -18,6 +18,8 @@
 
 #include <SDL.h>
 
+#include "common.hpp"
+
 namespace NetPanzer
 {
 
@@ -27,9 +29,18 @@ public:
 	static void Init(const char *windowTitle, int width, int height);
 	static void Quit();
 
+	NP_NODISCARD static bool IsWindowOpen();
+	static void CloseWindow();
+
+	static void Clear();
+	static void Present();
+
+	static void HandleEvents();
+
 public:
 	static SDL_Window *window;
 	static SDL_Renderer *renderer;
+	static bool isWindowOpen;
 };
 
 }

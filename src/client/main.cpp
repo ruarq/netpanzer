@@ -18,31 +18,18 @@
 #include <Graphics.hpp>
 #include <common.hpp>
 
+using namespace NetPanzer;
+
 int main()
 {
-	NetPanzer::Graphics::Init("NetPanzer v" VERSION, 1280, 720);
-
-	bool running = true;
-	while (running)
+	Graphics::Init("NetPanzer v" VERSION, 1280, 720);
+	while (Graphics::IsWindowOpen())
 	{
-		SDL_Event event;
-		while (SDL_PollEvent(&event))
-		{
-			switch (event.type)
-			{
-				case SDL_QUIT:
-					running = false;
-					break;
-
-				default:
-					break;
-			}
-		}
-
-		SDL_RenderClear(NetPanzer::Graphics::renderer);
-		SDL_RenderPresent(NetPanzer::Graphics::renderer);
+		Graphics::HandleEvents();
+		Graphics::Clear();
+		Graphics::Present();
 	}
-	NetPanzer::Graphics::Quit();
+	Graphics::Quit();
 
 	return 0;
 }

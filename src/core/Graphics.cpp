@@ -20,6 +20,7 @@ namespace NetPanzer
 
 SDL_Window *Graphics::window = nullptr;
 SDL_Renderer *Graphics::renderer = nullptr;
+bool Graphics::isWindowOpen = false;
 
 void Graphics::Init(const char *windowTitle, const int width, const int height)
 {
@@ -44,6 +45,8 @@ void Graphics::Init(const char *windowTitle, const int width, const int height)
 	{
 		// TODO(ruarq): Something went wrong
 	}
+
+	isWindowOpen = true;
 }
 
 void Graphics::Quit()
@@ -54,6 +57,45 @@ void Graphics::Quit()
 
 	renderer = nullptr;
 	window = nullptr;
+
+	isWindowOpen = false;
+}
+
+bool Graphics::IsWindowOpen()
+{
+	return isWindowOpen;
+}
+
+void Graphics::CloseWindow()
+{
+	isWindowOpen = false;
+}
+
+void Graphics::Clear()
+{
+	SDL_RenderClear(renderer);
+}
+
+void Graphics::Present()
+{
+	SDL_RenderPresent(renderer);
+}
+
+void Graphics::HandleEvents()
+{
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
+	{
+		switch (event.type)
+		{
+			case SDL_QUIT:
+				isWindowOpen = false;
+				break;
+
+			default:
+				break;
+		}
+	}
 }
 
 }
